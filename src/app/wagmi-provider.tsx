@@ -1,15 +1,12 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import {
-  getDefaultConfig,
-  RainbowKitProvider,
-  darkTheme,
-} from "@rainbow-me/rainbowkit";
+import { getDefaultConfig, RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
 import { WagmiProvider } from "wagmi";
+import { injectedWallet, metaMaskWallet, walletConnectWallet } from "@rainbow-me/rainbowkit/wallets";
 
 const arcTestnet = {
-  id: Number(process.env.NEXT_PUBLIC_CHAIN_ID || "5042002"),
+  id: 5042002,
   name: "ARC Testnet",
   nativeCurrency: {
     name: "USDC",
@@ -24,12 +21,23 @@ const arcTestnet = {
   },
 } as const;
 
-// Создаём конфиг один раз, вне компонента — это полностью убирает ошибку двойной инициализации
+const projectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID!;
+
 const config = getDefaultConfig({
   appName: "ARC USDC Locker",
-  projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID!,
+  projectId,
   chains: [arcTestnet],
   ssr: true,
+  wallets: [
+    {
+      groupName: "Recommended",
+      wallets: [
+        injectedWallet({ chains: [arcTestnet] }), // Прямой попап MetaMask extension (приоритет)
+        metaMaskWallet({ projectId, chains: [arcTestnet] }),
+        walletConnectWallet({ projectId, chains: [arcTestnet] }),
+      ],
+    },
+  ],
 });
 
 const queryClient = new QueryClient();
