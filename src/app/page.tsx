@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { parseUnits, formatUnits } from "viem";
@@ -66,7 +66,8 @@ const USDC_ABI = [
 export default function Home() {
   const { address, isConnected } = useAccount();
 
-const { data: rawFreeBalance } = useReadContract({
+  // Все хуки wagmi — наверху, до любых условий
+  const { data: rawFreeBalance } = useReadContract({
     address: USDC_ADDRESS,
     abi: USDC_ABI,
     functionName: "balanceOf",
@@ -75,20 +76,18 @@ const { data: rawFreeBalance } = useReadContract({
   const freeBalance = rawFreeBalance ? formatUnits(rawFreeBalance, USDC_DECIMALS) : "0";
 
   const { data: rawLocked } = useReadContract({
-  address: CONTRACT_ADDRESS,
-  abi: CONTRACT_ABI,
-  functionName: "lockedBalanceOf",
-  args: address ? [address] : undefined,
-});
-
-const lockedBalance = rawLocked ? formatUnits(rawLocked, USDC_DECIMALS) : "0";
+    address: CONTRACT_ADDRESS,
+    abi: CONTRACT_ABI,
+    functionName: "lockedBalanceOf",
+    args: address ? [address] : undefined,
+  });
+  const lockedBalance = rawLocked ? formatUnits(rawLocked, USDC_DECIMALS) : "0";
 
   const { data: rawUnlockTime } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
     functionName: "unlockTimeOf",
     args: address ? [address] : undefined,
-    // УДАЛИТЬ: enabled: !!address,
   });
   const unlockDate = rawUnlockTime && rawUnlockTime > BigInt(0)
     ? new Date(Number(rawUnlockTime) * 1000).toLocaleString("ru-RU")
@@ -104,6 +103,12 @@ const lockedBalance = rawLocked ? formatUnits(rawLocked, USDC_DECIMALS) : "0";
   const { isLoading: approveLoading } = useWaitForTransactionReceipt({ hash: approveHash });
   const { isLoading: lockLoading } = useWaitForTransactionReceipt({ hash: lockHash });
 
+  // Защита от SSR ошибок wagmi/rainbowkit
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const handleApprove = () => {
     if (!amount) return;
     const realAmount = parseUnits(amount, USDC_DECIMALS);
@@ -118,7 +123,7 @@ const lockedBalance = rawLocked ? formatUnits(rawLocked, USDC_DECIMALS) : "0";
   const handleLock = () => {
     if (!amount || !days) return;
     const realAmount = parseUnits(amount, USDC_DECIMALS);
-    const additionalDays = BigInt(Number(days)); // Правильно: передаём дни, а не секунды!
+    const additionalDays = BigInt(Number(days));
     lock({
       address: CONTRACT_ADDRESS,
       abi: CONTRACT_ABI,
@@ -134,6 +139,22 @@ const lockedBalance = rawLocked ? formatUnits(rawLocked, USDC_DECIMALS) : "0";
       functionName: "unlock",
     });
   };
+
+  // Пока не на клиенте — показываем загрузку
+  if (!isClient) {
+    return (
+      <div style={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+        color: "#e2e8f0",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}>
+        <h1 style={{ fontSize: "2.5rem", color: "#60a5fa" }}>Загрузка...</h1>
+      </div>
+    );
+  }
 
   return (
     <div style={{
@@ -169,10 +190,10 @@ const lockedBalance = rawLocked ? formatUnits(rawLocked, USDC_DECIMALS) : "0";
             <strong>Адрес:</strong> {address.slice(0, 6)}...{address.slice(-4)}
           </p>
           <p style={{ marginBottom: "15px", fontSize: "1.1rem" }}>
-            <strong>Свободный баланс:</strong> {Number(freeBalance).toFixed(2)} USDC
+            <strong>Свободный баланс:</strong> {parseFloat(freeBalance).toFixed(2)} USDC
           </p>
           <p style={{ marginBottom: "15px", fontSize: "1.1rem" }}>
-            <strong>Заблокировано:</strong> {Number(lockedBalance).toFixed(2)} USDC
+            <strong>Заблокировано:</strong> {parseFloat(lockedBalance).toFixed(2)} USDC
           </p>
           {unlockDate && (
             <p style={{ marginBottom: "25px", fontSize: "1.1rem", color: "#93c5fd" }}>
