@@ -21,7 +21,7 @@ const arcTestnet = {
 } as const;
 
 const config = getDefaultConfig({
-  appName: "ARC USDC Locker",
+  appName: "arc token locker",
   projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID!,
   chains: [arcTestnet],
   ssr: true, // Важно для Next.js App Router, чтобы избежать hydration errors
