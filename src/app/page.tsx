@@ -90,7 +90,7 @@ const lockedBalance = rawLocked ? formatUnits(rawLocked, USDC_DECIMALS) : "0";
     args: address ? [address] : undefined,
     // УДАЛИТЬ: enabled: !!address,
   });
-  const unlockDate = rawUnlockTime && rawUnlockTime > 0n
+  const unlockDate = rawUnlockTime && rawUnlockTime > BigInt(0)
     ? new Date(Number(rawUnlockTime) * 1000).toLocaleString("ru-RU")
     : null;
 
