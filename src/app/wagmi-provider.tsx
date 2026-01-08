@@ -1,8 +1,9 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import { getDefaultConfig, RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
 import { WagmiProvider } from "wagmi";
+import { useState, useEffect } from "react";
 
 const arcTestnet = {
   id: Number(process.env.NEXT_PUBLIC_CHAIN_ID),
@@ -20,20 +21,32 @@ const arcTestnet = {
   },
 } as const;
 
-const config = getDefaultConfig({
-  appName: "arc token locker",
-  projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID!,
-  chains: [arcTestnet],
-  ssr: true, // Важно для Next.js App Router, чтобы избежать hydration errors
-});
-
 const queryClient = new QueryClient();
 
 export function WagmiProviders({ children }: { children: React.ReactNode }) {
+  const [config, setConfig] = useState(() => 
+    getDefaultConfig({
+      appName: "arc lock",
+      projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID!,
+      chains: [arcTestnet],
+      ssr: true,
+    })
+  );
+
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider>{children}</RainbowKitProvider>
+        <RainbowKitProvider
+          theme={darkTheme({
+            accentColor: "#3b82f6",
+            accentColorForeground: "#ffffff",
+            borderRadius: "large",
+            overlayBlur: "small",
+          })}
+          modalSize="compact"
+        >
+          {children}
+        </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );
