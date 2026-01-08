@@ -1,12 +1,15 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { getDefaultConfig, RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
+import {
+  getDefaultConfig,
+  RainbowKitProvider,
+  darkTheme,
+} from "@rainbow-me/rainbowkit";
 import { WagmiProvider } from "wagmi";
-import { useState, useEffect } from "react";
 
 const arcTestnet = {
-  id: Number(process.env.NEXT_PUBLIC_CHAIN_ID),
+  id: Number(process.env.NEXT_PUBLIC_CHAIN_ID || "5042002"),
   name: "ARC Testnet",
   nativeCurrency: {
     name: "USDC",
@@ -21,18 +24,17 @@ const arcTestnet = {
   },
 } as const;
 
+// Создаём конфиг один раз, вне компонента — это полностью убирает ошибку двойной инициализации
+const config = getDefaultConfig({
+  appName: "ARC USDC Locker",
+  projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID!,
+  chains: [arcTestnet],
+  ssr: true,
+});
+
 const queryClient = new QueryClient();
 
 export function WagmiProviders({ children }: { children: React.ReactNode }) {
-  const [config, setConfig] = useState(() => 
-    getDefaultConfig({
-      appName: "arc lock",
-      projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID!,
-      chains: [arcTestnet],
-      ssr: true,
-    })
-  );
-
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
