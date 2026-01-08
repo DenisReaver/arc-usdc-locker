@@ -66,30 +66,29 @@ const USDC_ABI = [
 export default function Home() {
   const { address, isConnected } = useAccount();
 
-  const { data: rawFreeBalance } = useReadContract({
+const { data: rawFreeBalance } = useReadContract({
     address: USDC_ADDRESS,
     abi: USDC_ABI,
     functionName: "balanceOf",
     args: address ? [address] : undefined,
-    enabled: !!address,
   });
   const freeBalance = rawFreeBalance ? formatUnits(rawFreeBalance, USDC_DECIMALS) : "0";
 
   const { data: rawLocked } = useReadContract({
-    address: CONTRACT_ADDRESS,
-    abi: CONTRACT_ABI,
-    functionName: "lockedBalanceOf",
-    args: address ? [address] : undefined,
-    enabled: !!address,
-  });
-  const lockedBalance = rawLocked ? formatUnits(rawLocked, USDC_DECIMALS) : "0";
+  address: CONTRACT_ADDRESS,
+  abi: CONTRACT_ABI,
+  functionName: "lockedBalanceOf",
+  args: address ? [address] : undefined,
+});
+
+const lockedBalance = rawLocked ? formatUnits(rawLocked, USDC_DECIMALS) : "0";
 
   const { data: rawUnlockTime } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
     functionName: "unlockTimeOf",
     args: address ? [address] : undefined,
-    enabled: !!address,
+    // УДАЛИТЬ: enabled: !!address,
   });
   const unlockDate = rawUnlockTime && rawUnlockTime > 0n
     ? new Date(Number(rawUnlockTime) * 1000).toLocaleString("ru-RU")
