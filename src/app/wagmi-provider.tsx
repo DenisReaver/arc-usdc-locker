@@ -3,7 +3,13 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { getDefaultConfig, RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
 import { WagmiProvider } from "wagmi";
-import { injectedWallet, metaMaskWallet, walletConnectWallet } from "@rainbow-me/rainbowkit/wallets";
+
+// Импортируем функции создания кошельков
+import { 
+  injectedWallet,
+  metaMaskWallet,
+  walletConnectWallet,
+} from "@rainbow-me/rainbowkit/wallets";
 
 const arcTestnet = {
   id: 5042002,
@@ -23,6 +29,7 @@ const arcTestnet = {
 
 const projectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID!;
 
+// Правильный способ передать wallets — как функции
 const config = getDefaultConfig({
   appName: "ARC USDC Locker",
   projectId,
@@ -32,9 +39,9 @@ const config = getDefaultConfig({
     {
       groupName: "Recommended",
       wallets: [
-        injectedWallet({ chains: [arcTestnet] }), // Прямой попап MetaMask extension (приоритет)
-        metaMaskWallet({ projectId, chains: [arcTestnet] }),
-        walletConnectWallet({ projectId, chains: [arcTestnet] }),
+        injectedWallet, // ← Просто функция, без вызова
+        metaMaskWallet,
+        walletConnectWallet,
       ],
     },
   ],
