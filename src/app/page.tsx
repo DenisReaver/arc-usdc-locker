@@ -109,29 +109,33 @@ export default function Home() {
     setIsClient(true);
   }, []);
 
-const handleApprove = () => {
+const MAX_UINT256 = BigInt("115792089237316195423570985008687907853269984665640564039457584007913129639935");
+const handleApprove = async () => {
   if (!amount || Number(amount) <= 0) {
     alert("Введите сумму USDC больше 0");
     return;
   }
 
   if (!address) {
-    alert("Кошелёк не подключён");
+    alert("Подключите кошелёк");
     return;
   }
 
-  console.log("Approve: amount =", amount, "address =", address);
+  console.log("Запуск approve для контракта:", CONTRACT_ADDRESS);
+  console.log("Сумма для approve: бесконечная (MAX_UINT256)");
 
-  const realAmount = parseUnits(amount, USDC_DECIMALS);
-
-  console.log("Approve parsed amount =", realAmount.toString());
-
-  approve({
-    address: USDC_ADDRESS,
-    abi: USDC_ABI,
-    functionName: "approve",
-    args: [CONTRACT_ADDRESS, realAmount],
-  });
+  try {
+    await approve({
+      address: USDC_ADDRESS,
+      abi: USDC_ABI,
+      functionName: "approve",
+      args: [CONTRACT_ADDRESS, MAX_UINT256], // Бесконечный approve — один раз и навсегда
+    });
+    console.log("Approve запрос отправлен");
+  } catch (error) {
+    console.error("Ошибка approve:", error);
+    alert("Ошибка при approve: " + (error as any).message);
+  }
 };
 
   const handleLock = () => {
