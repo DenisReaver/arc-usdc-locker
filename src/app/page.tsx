@@ -109,16 +109,30 @@ export default function Home() {
     setIsClient(true);
   }, []);
 
-  const handleApprove = () => {
-    if (!amount) return;
-    const realAmount = parseUnits(amount, USDC_DECIMALS);
-    approve({
-      address: USDC_ADDRESS,
-      abi: USDC_ABI,
-      functionName: "approve",
-      args: [CONTRACT_ADDRESS, realAmount],
-    });
-  };
+const handleApprove = () => {
+  if (!amount || Number(amount) <= 0) {
+    alert("Введите сумму USDC больше 0");
+    return;
+  }
+
+  if (!address) {
+    alert("Кошелёк не подключён");
+    return;
+  }
+
+  console.log("Approve: amount =", amount, "address =", address);
+
+  const realAmount = parseUnits(amount, USDC_DECIMALS);
+
+  console.log("Approve parsed amount =", realAmount.toString());
+
+  approve({
+    address: USDC_ADDRESS,
+    abi: USDC_ABI,
+    functionName: "approve",
+    args: [CONTRACT_ADDRESS, realAmount],
+  });
+};
 
   const handleLock = () => {
     if (!amount || !days) return;
