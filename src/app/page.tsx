@@ -108,7 +108,6 @@ export default function Home() {
   useEffect(() => {
     setIsClient(true);
   }, []);
-
 const MAX_UINT256 = BigInt("115792089237316195423570985008687907853269984665640564039457584007913129639935");
 const handleApprove = async () => {
   if (!amount || Number(amount) <= 0) {
@@ -137,6 +136,8 @@ const handleApprove = async () => {
     alert("Ошибка при approve: " + (error as any).message);
   }
 };
+
+
 
   const handleLock = () => {
     if (!amount || !days) return;
@@ -169,7 +170,7 @@ const handleApprove = async () => {
         alignItems: "center",
         justifyContent: "center",
       }}>
-        <h1 style={{ fontSize: "2.5rem", color: "#60a5fa" }}>Загрузка...</h1>
+        <h1 style={{ fontSize: "2.5rem", color: "#60a5fa" }}>Loading ARC Lock APP...</h1>
       </div>
     );
   }
@@ -205,27 +206,27 @@ const handleApprove = async () => {
           border: "1px solid #334155",
         }}>
           <p style={{ marginBottom: "15px", fontSize: "1.1rem" }}>
-            <strong>Адрес:</strong> {address.slice(0, 6)}...{address.slice(-4)}
+            <strong>address:</strong> {address.slice(0, 6)}...{address.slice(-4)}
           </p>
           <p style={{ marginBottom: "15px", fontSize: "1.1rem" }}>
-            <strong>Свободный баланс:</strong> {parseFloat(freeBalance).toFixed(2)} USDC
+            <strong>Free balance:</strong> {parseFloat(freeBalance).toFixed(2)} USDC
           </p>
           <p style={{ marginBottom: "15px", fontSize: "1.1rem" }}>
-            <strong>Заблокировано:</strong> {parseFloat(lockedBalance).toFixed(2)} USDC
+            <strong>Blocked:</strong> {parseFloat(lockedBalance).toFixed(2)} USDC
           </p>
           {unlockDate && (
             <p style={{ marginBottom: "25px", fontSize: "1.1rem", color: "#93c5fd" }}>
-              <strong>Разблокировка:</strong> {unlockDate}
+              <strong>Unlock:</strong> {unlockDate}
             </p>
           )}
 
           <h2 style={{ fontSize: "1.5rem", margin: "30px 0 20px", color: "#60a5fa" }}>
-            Добавить в лок (дни прибавляются)
+            Add to lock (days are added)
           </h2>
 
           <input
             type="number"
-            placeholder="Сумма USDC (например: 10)"
+            placeholder="USDC amount (например: 10)"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             style={{
@@ -242,7 +243,7 @@ const handleApprove = async () => {
 
           <input
             type="number"
-            placeholder="Дни для прибавления (например: 7)"
+            placeholder="Days to add (for example: 7)"
             value={days}
             onChange={(e) => setDays(e.target.value)}
             style={{
@@ -289,7 +290,7 @@ const handleApprove = async () => {
                 cursor: "pointer",
               }}
             >
-              {lockLoading ? "Блокируется..." : "2. Заблокировать"}
+              {lockLoading ? "Blocked..." : "2. Block"}
             </button>
           </div>
 
@@ -306,7 +307,7 @@ const handleApprove = async () => {
               cursor: "pointer",
             }}
           >
-            Разблокировать всё
+            Unlock everything
           </button>
         </div>
       )}
